@@ -9,5 +9,6 @@ int main() {
 	printf("%c%c%c%c\n", **str, *(*(str + 1) + 1), *((str + 2)[-1] + 1), **&*(&str[-1] + 1));
 
 
-	
+
 }
+// Be WooW

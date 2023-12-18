@@ -3,7 +3,7 @@
 #define MAX_SIZE 200
 int arr[MAX_SIZE];
 
-typedef struct alfa * alfaptr;
+typedef struct alfa* alfaptr;
 
 struct alfa {
 	long long x;
@@ -15,6 +15,7 @@ void push(int x)
 	alfaptr node;
 	node = (alfaptr)malloc(sizeof(struct alfa));
 	node->x = x;
+	node->next = NULL; // اینجا باید مقدار next را به NULL تنظیم کنیم
 	if (!front)
 		front = node;
 	else {
@@ -32,6 +33,10 @@ void pop()
 	{
 		node = front->next;
 		front = node;
+		free(node); // اینجا باید حافظه مصرفی توسط node را بازگردانید
+		// همچنین باید بررسی کنید که آیا front بعد از pop برابر با NULL است یا نه و در صورت برابر بودن باید rear را هم برابر با NULL قرار دهید
+		if (front == NULL)
+			rear = NULL;
 	}
 }
 void search(int x)
@@ -43,32 +48,51 @@ void search(int x)
 			printf("%d", counter);
 		else {
 			printf("ERROR2");
-			break;
+			//break;
+			return; // باید در صورت یافتن مقدار، از حلقه خارج شود
 		}
-		node = node->next;
+	node = node->next;
 }
 
 void rpop() {//pop last element
 	alfaptr node = front;
-	while (node)
-		node = node->next;
-	free(rear);
-	rear = node;
+	if (!node) // اگر صف خالی باشد، هیچ کاری انجام نده
+		return;
+	if (!node->next) // اگر صف تنها یک عنصر داشته باشد
+	{
+		free(front);
+		front = NULL;
+		rear = NULL;
+	}
+	else
+	{
+		while (node->next->next) // پیدا کردن عنصر قبل از عنصر آخر صف
+			node = node->next;
+		free(rear);
+		rear = node;
+		rear->next = NULL;
+	}
 }
 
 void set()
 {
 	alfaptr node = front;
-	for (int i = 0; i < MAX_SIZE && node; i++, node = node->next)
-		arr[i] = node->x;
+	for (int i = 0; i < MAX_SIZE; i++, node = node->next)
+	{
+		if (node)
+			arr[i] = node->x;
+		else
+			arr[i] = 0; // اگر تعداد عناصر کمتر از MAX_SIZE باشد، باقی خانه‌ها را با صفر پر می‌کنیم.
+	}
 }
 
 int size()
 {
 	alfaptr node = front;
-	int count;
+//	int count;
+	int count = 0; // باید اینجا مقدار اولیه صفر را بدهیم
 	while (node)
-		count++;node = node->next;
+		count++; node = node->next;
 	return count;
 }
 
@@ -88,12 +112,14 @@ int average()
 {
 
 	alfaptr node = front;
-	int sum = 0, count;
+	int sum = 0, count = 0; // باید اینجا مقدارهای اولیه صفر را بدهیم
 	while (node) {
 		sum += node->x;
 		count++;
 		node = node->next;
 	}
+	if (count == 0) // برای جلوگیری از تقسیم بر صفر
+		return 0;
 	return sum / count;
 }
 
